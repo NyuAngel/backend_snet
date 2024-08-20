@@ -2,6 +2,8 @@ import express from "express";
 import connection from "./database/connection.js";
 import bodyParser from "body-parser";
 import cors from "cors";
+import UserRoutes from "./routes/user.js"
+
 
 
 // mensaje de bienvenida para verificar que ejecute bien la API de Node
@@ -27,6 +29,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded ({extended: true }));
 
 // Configurar rutas del aplicativo 
+app.use('/api/user', UserRoutes);
 
 // Ruta de prueba 
 app.get ('/ruta-prueba', (req, res) => {
