@@ -33,22 +33,6 @@ app.use('/api/user', UserRoutes);
 app.use('/api/publication', PublicationRoutes);
 app.use('/api/follow', FollowRoutes);
 
-// Ruta de prueba 
-app.get ('/ruta-prueba', (req, res) => {
-    return res.status(200).json (
-        {
-            'id': 1,
-            'name': 'Viviana Angel',
-            'username': 'viviangel'
-
-        }
-
-    );
-    
-});
-
-
-
 
 // COnfigurar el servidor Node 
 app.listen ( puerto, ()=> {
