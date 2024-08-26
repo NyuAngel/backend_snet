@@ -4,7 +4,6 @@ import { createToken } from "../services/jwt.js";
 import fs from "fs";
 import path from "path";
 
-
 // Método de prueba de usuario
 export const testUser = (req, res) => {
   return res.status(200).send({
@@ -14,40 +13,38 @@ export const testUser = (req, res) => {
 }
 
 // Método Registro de Usuarios
+export const register = async (req, res) => {
+  try {
+    // Obtener los datos de la petición
+    let params = req.body;
 
-export const register = async (req , res) => {
-    try {
-    // Obtener los datos de la  petición 
-    let params = req.body ;
-
-    // Validaciones de los datos obtenidos 
+    // Validaciones de los datos obtenidos
     if (!params.name || !params.last_name || !params.email || !params.password || !params.nick){
-        return res.status(400).send({
-          status: "error",
-          message: "Faltan datos por enviar"
-        });
-      }
+      return res.status(400).send({
+        status: "error",
+        message: "Faltan datos por enviar"
+      });
+    }
 
     // Crear el objeto de usuario con los datos que ya validamos
     let user_to_save = new User(params);
     user_to_save.email = params.email.toLowerCase();
-    
-        
+
     // Busca si ya existe un usuario con el mismo email o nick
     const existingUser = await User.findOne({
       $or: [
-          { email: user_to_save.email.toLowerCase() },
-          { nick: user_to_save.nick.toLowerCase() }
-        ]
-      });
+        { email: user_to_save.email.toLowerCase() },
+        { nick: user_to_save.nick.toLowerCase() }
+      ]
+    });
 
     // Si encuentra un usuario, devuelve un mensaje indicando que ya existe
     if(existingUser) {
       return res.status(409).send({
         status: "error",
         message: "!El usuario ya existe!"
-        });
-      }
+      });
+    }
 
     // Cifra la contraseña antes de guardarla en la base de datos
     const salt = await bcrypt.genSalt(10); // Genera una sal para cifrar la contraseña
@@ -59,23 +56,23 @@ export const register = async (req , res) => {
 
     // Devolver el usuario registrado
     return res.status(200).json({
-        status: "success",
-        message: "Registro de usuario exitoso",
-        user_to_save
-      }); 
+      status: "success",
+      message: "Registro de usuario exitoso",
+      user_to_save
+    });
 
-    } catch (error) {
-      // Manejo de errores
-      console.log("Error en el registro de usuario:", error);
-      // Devuelve mensaje de error
-      return res.status(500).send({
-        status: "error",
-        message: "Error en el registro de usuario"
-      });
-    }
+  } catch (error) {
+    // Manejo de errores
+    console.log("Error en el registro de usuario:", error);
+    // Devuelve mensaje de error
+    return res.status(500).send({
+      status: "error",
+      message: "Error en el registro de usuario"
+    });
   }
+}
 
-  // Método de autenticación de usuarios (login) usando JWT
+// Método de autenticación de usuarios (login) usando JWT
 export const login = async (req, res) => {
   try {
     // Obtener los parámetros del body
@@ -173,8 +170,7 @@ export const profile = async (req, res) => {
   }
 }
 
-// Método para listar usuarios con la paginación de MongoDB
-
+// Método para listar usuarios con la paginación de MondoDB
 export const listUsers = async (req, res) => {
   try {
     // Gestionar páginas
@@ -290,37 +286,35 @@ export const updateUser = async (req, res) => {
   }
 }
 
-// Método para subir el AVATAR ( Imagen de perfil) y actualizar el campo image del User
+// Método para subir AVATAR (imagen de perfil) y actualizar el campo image del User
 export const uploadAvatar = async (req, res) => {
   try {
-    //Obtener el archivo de la imagen y comprobar si existe
+    // Obtener el archivo de la imagen y comprobar si existe
     if(!req.file){
-      return res.status (404).send ({
-        status:"error",
+      return res.status(404).send({
+        status: "error",
         message: "Error la petición no incluye la imagen"
       });
     }
 
-    //Obtener el nombre del archivo
+    // Obtener el nombre del archivo
+    let image = req.file.originalname;
 
-    let image = req.file.originalname; 
+    // Obtener la extensión del archivo
+    const imageSplit = image.split(".");
+    const extension = imageSplit[imageSplit.length -1];
 
-    // Obtener la extención del archivo
-    const imageSplit =image.split(".");
-    const extension = imageSplit [imageSplit.length -1];
-
-    //Validar la extensión 
-    if (!["png", "jpg" , "jpeg", "gif"]){
-      // Borrar archivo subido
+    // Validar la extensión
+    if (!["png", "jpg", "jpeg", "gif"].includes(extension.toLowerCase())){
+      //Borrar archivo subido
       const filePath = req.file.path;
-      fs.unlinkSync (filePath);
+      fs.unlinkSync(filePath);
 
-      return res.status (404).send({
-        status:"error",
-        message:" Extensión del archivo inválida. Solo se permite: png, jpg, jpeg , gif"
+      return res.status(404).send({
+        status: "error",
+        message: "Extensión del archivo inválida. Solo se permite: png, jpg, jpeg, gif"
       });
     }
-
     // Comprobar tamaño del archivo (pj: máximo 1MB)
     const fileSize = req.file.size;
     const maxFileSize = 1 * 1024 * 1024; // 1 MB
@@ -350,7 +344,7 @@ export const uploadAvatar = async (req, res) => {
       });
     }
 
-    // Devolver respuesta exitosa 
+    // Devolver respuesta exitosa
     return res.status(200).json({
       status: "success",
       user: userUpdated,
@@ -366,4 +360,33 @@ export const uploadAvatar = async (req, res) => {
   }
 }
 
-    
+// Método para mostrar el AVATAR (imagen de perfil)
+export const avatar = async (req, res) => {
+  try {
+    // Obtener el parámetro del archivo desde la url
+    const file = req.params.file;
+
+    // Configurando el path real de la imagen que queremos mostrar
+    const filePath = "./uploads/avatars/" + file;
+
+    // Comprobar que si existe el filePath
+    fs.stat(filePath, (error, exists) => {
+      if(!filePath) {
+        return res.status(404).send({
+          status: "error",
+          message: "No existe la imagen"
+        });
+      }
+
+      // Devolver el file
+      return res.sendFile(path.resolve(filePath));
+    });
+
+  } catch (error) {
+    console.log("Error al mostrar la imagen", error)
+    return res.status(500).send({
+      status: "error",
+      message: "Error al mostrar la imagen"
+    });
+  }
+}

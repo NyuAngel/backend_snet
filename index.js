@@ -6,38 +6,34 @@ import UserRoutes from "./routes/user.js";
 import PublicationRoutes from "./routes/publication.js";
 import FollowRoutes from "./routes/follow.js";
 
-// mensaje de bienvenida para verificar que ejecute bien la API de Node
+// Mensaje de bienvenida para verificar que ejecutó bien la API de Node
+console.log("API Node en ejecución");
 
-console.log ("API Node en ejecucion ");
+// Conexión a la BD
+connection();
 
-// Conexion a la BD 
-connection ();
-
-// Crear el servidor de Node 
+// Crear el servidor de Node
 const app = express();
 const puerto = process.env.PORT || 3900;
 
-
-// Configurar cors para hacer las peticiones correctamente 
+// Configurar cors para hacer las peticiones correctamente
 app.use(cors({
-    origin: '*',
-    methods: 'GET, HEAD, PUT, PATCH, POST, DELETE'
+  origin: '*',
+  methods: 'GET,HEAD, PUT,PATCH,POST,DELETE'
 }));
 
-// Decodificar los datos desde los formularios para convertilos en objetos JS
+// Decodificar los datos desde los formularios para convertirlos en objetos JS
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded ({extended: true }));
+app.use(bodyParser.urlencoded({ extended: true }));
 
-// Configurar rutas del aplicativo 
+// Configurar rutas del aplicativo
 app.use('/api/user', UserRoutes);
 app.use('/api/publication', PublicationRoutes);
 app.use('/api/follow', FollowRoutes);
 
-
-// COnfigurar el servidor Node 
-app.listen ( puerto, ()=> {
-    console.log ("Servidor de Node ejecutándose en el puerto", puerto);
+// Configurar el servidor Node
+app.listen(puerto, () => {
+  console.log("Servidor de Node ejecutándose en el puerto", puerto);
 });
-
 
 export default app;
