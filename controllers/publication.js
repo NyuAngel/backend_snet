@@ -248,7 +248,7 @@ export const uploadMedia = async (req, res) => {
       });
     }
 
-    // Si todo es correcto, se procede a guardar en la BD
+    // Si todo es correcto, se guarda en la BD
     const publicationUpdated = await Publication.findOneAndUpdate(
       { user_id: req.user.userId, _id: publicationId },
       { file: req.file.filename },
