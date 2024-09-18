@@ -2,7 +2,7 @@ import jwt from  'jwt-simple';
 import moment from 'moment';
 import dotenv from 'dotenv';
 
-//Cargar variables de entorno desde el archivo .env
+// Cargar variables de entorno desde el archivo .env
 dotenv.config();
 
 // Clave secreta
@@ -12,11 +12,11 @@ const secret = process.env.SECRET_KEY;
 const createToken = (user) => {
   const payload = {
     userId: user._id,
-    name:user.name, // quitar para el despliegue
+    name: user.name,  // quitar para el despliegue
     role: user.role,
     // Fecha de emisión
     iat: moment().unix(),
-    exp: moment().add(30, 'days').unix()
+    exp: moment().add(7, 'days').unix()
   };
 
   // Devolver jwt_token codificado
